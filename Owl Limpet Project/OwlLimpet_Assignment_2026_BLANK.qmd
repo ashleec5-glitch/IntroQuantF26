@@ -11,6 +11,7 @@ editor: visual
 ```{r load packages, include = FALSE}
 library(tidyverse)
 library(readxl)
+library (ggplot2)
 ```
 
 ## Project Summary:
@@ -174,12 +175,18 @@ No_CDM_Sizes
 
 # How many did we measure total, across both sites?
 No_CDM_Sizes |> 
+  nrow()
 
 ## How many did we measure at each site? 
 No_CDM_Sizes |> 
+  group_by (year, site) %>% 
+  count ()
+
 
 # How many did we measure in each transect? 
 No_CDM_Sizes |> 
+  group_by (year, site, transect_num) %>% 
+  count()
 ```
 
 #### 2.2 What was the limpet density (i.e., limpets per square meter) for each transect?
@@ -188,7 +195,10 @@ Make a new dataframe out of the `No_CDM_Sizes` that has a column called *density
 
 ```{r}
 Limpet_Density <- No_CDM_Sizes |> 
-  
+  select (transect_length_m, transect_num, year, site) %>% 
+  group_by(transect_length_m, transect_num, year, site) %>% 
+  count() %>% 
+  mutate(density = n/(transect_length_m*2))
   
 
 Limpet_Density
@@ -201,7 +211,18 @@ Do you see any patterns just from examining this table of values?
 What was the mean limpets per square meter across all sites? And the standard deviation? And standard error?
 
 ```{r}
-Limpet_Density |> 
+Limpet_Density$density |> 
+  mean()
+
+Limpet_Density$density %>% 
+  sd ()
+
+n <- Limpet_Density$density %>% 
+  length()
+
+Limpet_Density$density %>% 
+  sd()/sqrt(n)
+
 
 
 ```
@@ -211,6 +232,7 @@ Now create a summary table in which you calculate separate mean and standard dev
 ```{r}
 # use summarize() to calculate the mean and standard error (sd/sqrt(n)) for the two locations
 LimpetPopSummary <- Limpet_Density |>
+  group_by(year, site)
   
   
   
